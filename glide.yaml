@@ -1,0 +1,4 @@
+package: micro-auth
+import:
+- package: github.com/gorilla/mux
+- package: github.com/urfave/negroni
