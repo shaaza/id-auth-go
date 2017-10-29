@@ -2,3 +2,5 @@ package: micro-auth
 import:
 - package: github.com/gorilla/mux
 - package: github.com/urfave/negroni
+- package: github.com/spf13/viper
+  version: ~1.0.0
