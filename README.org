@@ -1,0 +1,14 @@
+** Setup
+
+1. `make setup-glide`
+2. `make setup`
+3. `make copy-config`
+
+** Building
+
+1. `make build` will create a binary in a (new) `out/` directory
+
+
+** Starting server
+
+After [building](#building), run `./out/micro-auth`.
