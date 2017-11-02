@@ -19,6 +19,7 @@ type Config struct {
 }
 
 var App Config
+var DB Database
 
 func Load() {
 	viper.SetConfigName("application")

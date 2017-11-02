@@ -1,8 +1,12 @@
 -- +migrate Up
 CREATE TABLE users (
-    id int PRIMARY KEY,
-    username varchar(255),
-    password varchar(255)
+    id uuid PRIMARY KEY,
+    username varchar(255) UNIQUE,
+    password varchar(255),
+    first_name varchar(255),
+    last_name varchar(255),
+    phone_number varchar(255)
 );
+
 -- +migrate Down
 DROP TABLE users;

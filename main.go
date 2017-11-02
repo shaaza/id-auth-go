@@ -1,20 +1,31 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
-
+	_ "github.com/lib/pq"
 	"github.com/urfave/cli"
+	"log"
 	"micro-auth/api"
 	"micro-auth/config"
 	"micro-auth/migrations"
 	"os"
 	"runtime"
+
+	"micro-auth/db"
 )
 
 func main() {
 	config.Load()
-
-	server := api.Server()
+	dbinfo := fmt.Sprintf("dbname=%s sslmode=disable", config.App.Database.Name)
+	databaseInstance, err := sql.Open(config.App.Database.Dialect, dbinfo)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer databaseInstance.Close()
+	database := db.DB{
+		Instance: databaseInstance,
+	}
 
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
@@ -26,7 +37,7 @@ func main() {
 			Name:        "start",
 			Description: "Start Http Server",
 			Action: func(c *cli.Context) error {
-				server.Run(fmt.Sprintf(":%d", config.App.Server.Port))
+				api.StartServer(api.Server(database), config.App.Server)
 				return nil
 			},
 		},

@@ -1,20 +1,12 @@
-hash: 815b4d568dbdb80b8d7396fc7aa15ba033e533b12d1be808c6ca2c91a252879d
-updated: 2017-11-02T12:21:38.382415402+07:00
+hash: 93bc7db563bbc570613de847f1b443031356efc5768f8c9caad361c7fbf064e9
+updated: 2017-11-03T02:45:50.382596783+07:00
 imports:
-- name: github.com/armon/go-radix
-  version: 1fca145dffbcaa8fe914309b1ec0cfc67500fe61
-- name: github.com/bgentry/speakeasy
-  version: 4aabc24848ce5fd31929f7d1e4ea74d3709c14cd
 - name: github.com/fsnotify/fsnotify
   version: 7d7316ed6e1ed2de075aab8dfc76de5d158d66e1
 - name: github.com/gorilla/context
   version: 08b5f424b9271eedf6f9f0ce86cb9396ed337a42
 - name: github.com/gorilla/mux
   version: 24fca303ac6da784b9e8269f724ddeb0b2eea5e7
-- name: github.com/hashicorp/errwrap
-  version: 7554cd9344cec97297fa6649b055a8c98c2a1e55
-- name: github.com/hashicorp/go-multierror
-  version: 83588e72410abfbe4df460eeb6f30841ae47d4c4
 - name: github.com/hashicorp/hcl
   version: 630949a3c5fa3c613328e1b8256052cbc2327c9b
   subpackages:
@@ -32,26 +24,18 @@ imports:
   - oid
 - name: github.com/magiconair/properties
   version: b3b15ef068fd0b17ddf408a23669f20811d194d2
-- name: github.com/mattn/go-isatty
-  version: a5cdd64afdee435007ee3e9f6ed4684af949d568
-- name: github.com/mitchellh/cli
-  version: 65fcae5817c8600da98ada9d7edf26dd1a84837b
 - name: github.com/mitchellh/mapstructure
   version: db1efb556f84b25a0a13a04aad883943538ad2e0
 - name: github.com/pelletier/go-buffruneio
   version: c37440a7cf42ac63b919c752ca73a85067e05992
 - name: github.com/pelletier/go-toml
   version: 361678322880708ac144df8575e6f01144ba1404
-- name: github.com/posener/complete
-  version: 88e59760adaddb8276c9b15511302890690e2dae
-  subpackages:
-  - cmd
-  - cmd/install
-  - match
 - name: github.com/rubenv/sql-migrate
   version: 79fe99e24311fa42469fb2ca23eb3f8f065e6155
   subpackages:
   - sqlparse
+- name: github.com/satori/go.uuid
+  version: 879c5887cd475cd7864858769793b2ceb0d44feb
 - name: github.com/spf13/afero
   version: 9be650865eab0c12963d8753212f4f9c66cdcf12
   subpackages:
@@ -68,6 +52,10 @@ imports:
   version: cfb38830724cc34fedffe9a2a29fb54fa9169cd1
 - name: github.com/urfave/negroni
   version: fde5e16d32adc7ad637e9cd9ad21d4ebc6192535
+- name: golang.org/x/crypto
+  version: ca7e7f10cb9fd9c1a6ff7f60436c086d73714180
+  subpackages:
+  - bcrypt
 - name: golang.org/x/sys
   version: 76cc09b634294339fa19ec41b5f2a0b3932cea8b
   subpackages:
