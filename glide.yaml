@@ -6,3 +6,5 @@ import:
   version: ~1.0.0
 - package: github.com/lib/pq
 - package: github.com/rubenv/sql-migrate
+- package: github.com/urfave/cli
+  version: ~1.20.0
