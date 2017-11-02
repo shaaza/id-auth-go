@@ -5,7 +5,7 @@ import (
 )
 
 type Error struct {
-	err error
+	err        error
 	StatusCode int
 }
 

@@ -1,0 +1,5 @@
+development:
+    dialect: postgres
+    datasource: dbname=micro_authenticator sslmode=disable
+    dir: migrations
+    table: migrations

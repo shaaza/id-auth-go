@@ -7,8 +7,15 @@ import (
 type AppServer struct {
 	Port int
 }
+
+type Database struct {
+	Name          string
+	MigrationsDir string
+	Dialect       string
+}
 type Config struct {
-	Server AppServer
+	Server   AppServer
+	Database Database
 }
 
 var App Config
@@ -24,6 +31,11 @@ func Load() {
 	App = Config{
 		Server: AppServer{
 			Port: getIntOrPanic("APP_PORT"),
+		},
+		Database: Database{
+			Name:          getStringOrPanic("DATABASE_NAME"),
+			MigrationsDir: getStringOrPanic("DATABASE_MIGRATIONS_DIR"),
+			Dialect:       getStringOrPanic("DATABASE_DIALECT"),
 		},
 	}
 }

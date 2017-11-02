@@ -4,3 +4,5 @@ import:
 - package: github.com/urfave/negroni
 - package: github.com/spf13/viper
   version: ~1.0.0
+- package: github.com/lib/pq
+- package: github.com/rubenv/sql-migrate

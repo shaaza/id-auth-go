@@ -1,16 +1,15 @@
 package api
 
 import (
-	"net/http"
 	"encoding/json"
 	"micro-auth/serializer"
 	"micro-auth/service"
+	"net/http"
 )
 
 type SignupHandler struct {
 	UserService service.UserService
 }
-
 
 func (h SignupHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	decoder := json.NewDecoder(req.Body)
@@ -22,8 +21,8 @@ func (h SignupHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	user, registerErr := h.UserService.Register(reqBody)
-	if registerErr != nil || user == "" {
+	registerErr := h.UserService.Register(reqBody)
+	if registerErr != nil {
 		rw.WriteHeader(registerErr.Code())
 		rw.Write([]byte("user registration failed: " + registerErr.Error()))
 		return
