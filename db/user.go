@@ -1,7 +1,6 @@
 package db
 
 import (
-	"github.com/satori/go.uuid"
 	"log"
 	"micro-auth/domain"
 	"net/http"
@@ -14,7 +13,7 @@ func (db *DB) NewUser(user domain.User) (int64, *domain.Error) {
 		return 0, domain.NewError(err.Error(), http.StatusInternalServerError)
 	}
 
-	result, err := statement.Exec(uuid.NewV4(), user.Username, user.Password, user.FirstName, user.LastName, user.PhoneNumber)
+	result, err := statement.Exec(user.Id, user.Username, user.Password, user.FirstName, user.LastName, user.PhoneNumber)
 	if err != nil {
 		log.Fatal(err)
 		return 0, domain.NewError(err.Error(), http.StatusConflict)
@@ -31,7 +30,7 @@ func (db *DB) NewUser(user domain.User) (int64, *domain.Error) {
 
 func (db *DB) GetUser(username string) (domain.User, *domain.Error) {
 	user := domain.User{}
-	rows, err := db.Instance.Query("SELECT username, password, first_name, last_name, phone_number FROM users WHERE username = $1", username)
+	rows, err := db.Instance.Query("SELECT id, username, password, first_name, last_name, phone_number FROM users WHERE username = $1", username)
 	if err != nil {
 		log.Fatal(err)
 		return user, domain.NewError(err.Error(), http.StatusInternalServerError)
@@ -40,7 +39,7 @@ func (db *DB) GetUser(username string) (domain.User, *domain.Error) {
 
 	rowCnt := 0
 	for rows.Next() {
-		err := rows.Scan(&user.Username, &user.Password, &user.FirstName, &user.LastName, &user.PhoneNumber)
+		err := rows.Scan(&user.Id, &user.Username, &user.Password, &user.FirstName, &user.LastName, &user.PhoneNumber)
 		if err != nil {
 			log.Fatal(err)
 		}

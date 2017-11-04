@@ -8,5 +8,14 @@ CREATE TABLE users (
     phone_number varchar(255)
 );
 
+CREATE TABLE sessions (
+    id uuid PRIMARY KEY,
+    user_id uuid,
+    start_time TIMESTAMP,
+    expiry_seconds INT,
+    valid BOOLEAN
+);
+
 -- +migrate Down
 DROP TABLE users;
+DROP TABLE sessions;

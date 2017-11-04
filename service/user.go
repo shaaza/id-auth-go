@@ -2,12 +2,15 @@ package service
 
 import (
 	"fmt"
+	"github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"micro-auth/db"
 	"micro-auth/domain"
 	"micro-auth/serializer"
 	"net/http"
+	"time"
+	"encoding/gob"
 )
 
 const HASHING_COST = 10
@@ -29,13 +32,22 @@ func (us UserServiceImpl) Register(reqData *serializer.SignupRequest) *domain.Er
 	}
 
 	user := domain.User{
+		Id:          uuid.NewV4().String(),
 		Username:    reqData.Username,
 		Password:    hashedPass,
 		FirstName:   reqData.FirstName,
 		LastName:    reqData.LastName,
 		PhoneNumber: reqData.PhoneNumber,
 	}
-	us.Database.NewUser(user)
+	rowCnt, registerErr := us.Database.NewUser(user)
+	if registerErr != nil {
+		return domain.NewError(fmt.Sprintf("could not create user: %s", registerErr.Error()), http.StatusInternalServerError)
+	}
+
+	if rowCnt == 0 {
+		return domain.NewError(fmt.Sprintf("could not create user: %s", registerErr.Error()), http.StatusInternalServerError)
+	}
+
 	return nil
 }
 
@@ -50,6 +62,23 @@ func (us UserServiceImpl) Login(reqData *serializer.LoginRequest) (domain.User, 
 		return domain.User{}, domain.NewError("Invalid password", http.StatusUnauthorized)
 	}
 
+	session := domain.Session{
+		Id:        uuid.NewV4().String(),
+		UserId:    user.Id,
+		StartTime: time.Now(),
+		Expiry:    int(time.Duration(time.Hour * 24 * 30).Seconds()),
+		Valid:     true,
+	}
+
+	rowCnt, loginErr := us.Database.NewSession(session)
+	if loginErr != nil {
+		return domain.User{}, domain.NewError(fmt.Sprintf("could not create session: %s", loginErr.Error()), http.StatusInternalServerError)
+	}
+
+	if rowCnt == 0 {
+		return domain.User{}, domain.NewError(fmt.Sprintf("could not create session: %s", loginErr.Error()), http.StatusInternalServerError)
+	}
+	
 	return user, nil
 }
 
