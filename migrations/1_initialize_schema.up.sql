@@ -2,7 +2,7 @@
 CREATE TABLE users (
     id uuid PRIMARY KEY,
     username varchar(255) UNIQUE,
-    password varchar(255),
+    password text,
     first_name varchar(255),
     last_name varchar(255),
     phone_number varchar(255)

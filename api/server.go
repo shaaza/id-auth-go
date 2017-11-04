@@ -1,14 +1,15 @@
 package api
 
 import (
-	"net/http"
-
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/urfave/negroni"
+	"log"
 	"micro-auth/config"
 	"micro-auth/db"
 	"micro-auth/service"
+	"net/http"
+	"os"
 )
 
 func NewUserService(db db.DB) service.UserService {
@@ -17,16 +18,26 @@ func NewUserService(db db.DB) service.UserService {
 	}
 }
 
-func NewSignupHandler(db db.DB) SignupHandler {
+func NewLoginHandler(userService service.UserService) LoginHandler {
+	return LoginHandler{
+		UserService: userService,
+	}
+}
+
+func NewSignupHandler(userService service.UserService) SignupHandler {
 	return SignupHandler{
-		UserService: NewUserService(db),
+		UserService: userService,
 	}
 }
 
 func Server(db db.DB) *negroni.Negroni {
+	userService := NewUserService(db)
+	log.SetOutput(os.Stdout)
+
 	router := mux.NewRouter()
 	router.HandleFunc("/ping", http.HandlerFunc(healthCheck)).Methods("GET")
-	router.Handle("/users", NewSignupHandler(db)).Methods("POST")
+	router.Handle("/users", NewSignupHandler(userService)).Methods("POST")
+	router.Handle("/sessions", NewLoginHandler(userService)).Methods("POST")
 
 	recovery := negroni.NewRecovery()
 	recovery.PrintStack = false
