@@ -30,6 +30,7 @@ func (h LoginHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	if validateErr != nil {
 		rw.WriteHeader(validateErr.Code())
 		rw.Write(domain.ErrToJSON(validateErr, validateErr.Code()))
+		return
 	}
 
 	user, session, loginErr := h.UserService.Login(reqBody)

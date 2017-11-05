@@ -81,7 +81,7 @@ func (us UserServiceImpl) Login(reqData *serializer.LoginRequest) (domain.User, 
 	}
 
 	if len(existingSession.Id) > 0 {
-		return user, existingSession, &domain.Error{}
+		return user, existingSession, nil
 	}
 
 	rowCnt, loginErr := us.Database.NewSession(session)

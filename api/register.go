@@ -30,6 +30,7 @@ func (h SignupHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	if validateErr != nil {
 		rw.WriteHeader(validateErr.Code())
 		rw.Write(domain.ErrToJSON(validateErr, validateErr.Code()))
+		return
 	}
 
 	registerErr := h.UserService.Register(reqBody)
