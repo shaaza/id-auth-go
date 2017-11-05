@@ -26,6 +26,12 @@ func (h SignupHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	validateErr := h.validateParams(reqBody)
+	if validateErr != nil {
+		rw.WriteHeader(validateErr.Code())
+		rw.Write(domain.ErrToJSON(validateErr, validateErr.Code()))
+	}
+
 	registerErr := h.UserService.Register(reqBody)
 	if registerErr != nil {
 		e := fmt.Errorf("user registration failed: %s", registerErr.Error())
@@ -46,4 +52,12 @@ func (h SignupHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	rw.Write(response)
+}
+
+func (h SignupHandler) validateParams(reqBody *serializer.SignupRequest) *domain.Error {
+	if reqBody.Username == "" || reqBody.Password == "" {
+		return domain.NewError("required params not provided", http.StatusBadRequest)
+	}
+
+	return nil
 }

@@ -26,6 +26,12 @@ func (h LoginHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	validateErr := h.validateParams(reqBody)
+	if validateErr != nil {
+		rw.WriteHeader(validateErr.Code())
+		rw.Write(domain.ErrToJSON(validateErr, validateErr.Code()))
+	}
+
 	user, session, loginErr := h.UserService.Login(reqBody)
 	if loginErr != nil {
 		e := fmt.Errorf("user login failed: %s", loginErr.Error())
@@ -50,4 +56,12 @@ func (h LoginHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	rw.Write(responseJson)
+}
+
+func (h LoginHandler) validateParams(reqBody *serializer.LoginRequest) *domain.Error {
+	if reqBody.Username == "" || reqBody.Password == "" {
+		return domain.NewError("required params not provided", http.StatusBadRequest)
+	}
+
+	return nil
 }
