@@ -1,7 +1,10 @@
 package domain
 
 import (
+	"encoding/json"
 	"errors"
+	"micro-auth/serializer"
+	"net/http"
 )
 
 type Error struct {
@@ -22,4 +25,18 @@ func (e *Error) Error() string {
 
 func (e *Error) Code() int {
 	return e.StatusCode
+}
+
+func ErrToJSON(e error, code int) []byte {
+	errResponse := serializer.Error{
+		Status: http.StatusText(code),
+		Error:  e.Error(),
+	}
+
+	errJSON, marshalErr := json.Marshal(errResponse)
+	if marshalErr != nil {
+		panic("code error: json marshalling failed for internally constructed struct")
+	}
+
+	return errJSON
 }

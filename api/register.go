@@ -2,6 +2,8 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
+	"micro-auth/domain"
 	"micro-auth/serializer"
 	"micro-auth/service"
 	"net/http"
@@ -12,19 +14,23 @@ type SignupHandler struct {
 }
 
 func (h SignupHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
+	rw.Header().Set("Content-Type", "application/json")
+
 	decoder := json.NewDecoder(req.Body)
 	var reqBody *serializer.SignupRequest
 	err := decoder.Decode(&reqBody)
 	if err != nil {
+		e := fmt.Errorf("json decode failed: %s", err.Error())
 		rw.WriteHeader(http.StatusBadRequest)
-		rw.Write([]byte("json decode failed: " + err.Error()))
+		rw.Write(domain.ErrToJSON(e, http.StatusBadRequest))
 		return
 	}
 
 	registerErr := h.UserService.Register(reqBody)
 	if registerErr != nil {
+		e := fmt.Errorf("user registration failed: %s", registerErr.Error())
 		rw.WriteHeader(registerErr.Code())
-		rw.Write([]byte("user registration failed: " + registerErr.Error()))
+		rw.Write(domain.ErrToJSON(e, registerErr.Code()))
 		return
 	}
 
@@ -34,9 +40,10 @@ func (h SignupHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 
 	response, err := json.Marshal(successResponse)
 	if err != nil {
+		e := fmt.Errorf("json marshal failed for response: %s", err.Error())
 		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write(domain.ErrToJSON(e, http.StatusInternalServerError))
 	}
 
-	rw.Header().Set("Content-Type", "application/json")
 	rw.Write(response)
 }

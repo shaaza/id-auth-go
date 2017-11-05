@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"micro-auth/domain"
 	"micro-auth/serializer"
 	"micro-auth/service"
 	"net/http"
@@ -13,17 +14,23 @@ type LoginHandler struct {
 }
 
 func (h LoginHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
+	rw.Header().Set("Content-Type", "application/json")
+
 	decoder := json.NewDecoder(req.Body)
 	var reqBody *serializer.LoginRequest
 	err := decoder.Decode(&reqBody)
 	if err != nil {
-		http.Error(rw, fmt.Sprintf("json decode failed: %s", err.Error()), http.StatusBadRequest)
+		e := fmt.Errorf("json decode failed: %s", err.Error())
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write(domain.ErrToJSON(e, http.StatusBadRequest))
 		return
 	}
 
 	user, session, loginErr := h.UserService.Login(reqBody)
 	if loginErr != nil {
-		http.Error(rw, fmt.Sprintf("user login failed: %s", loginErr.Error()), loginErr.Code())
+		e := fmt.Errorf("user login failed: %s", loginErr.Error())
+		rw.WriteHeader(loginErr.Code())
+		rw.Write(domain.ErrToJSON(e, loginErr.Code()))
 		return
 	}
 
@@ -37,9 +44,10 @@ func (h LoginHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 
 	responseJson, err := json.Marshal(successResponse)
 	if err != nil {
-		http.Error(rw, fmt.Sprintf("could not parse resp json: %s", err.Error()), http.StatusInternalServerError)
+		e := fmt.Errorf("could not parse resp json: %s", err.Error())
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write(domain.ErrToJSON(e, http.StatusInternalServerError))
 	}
 
-	rw.Header().Set("Content-Type", "application/json")
 	rw.Write(responseJson)
 }
