@@ -10,14 +10,14 @@ import (
 	"micro-auth/serializer"
 	"net/http"
 	"time"
-	"encoding/gob"
 )
 
 const HASHING_COST = 10
 
 type UserService interface {
 	Register(reqData *serializer.SignupRequest) *domain.Error
-	Login(reqData *serializer.LoginRequest) (domain.User, *domain.Error)
+	Login(reqData *serializer.LoginRequest) (domain.User, domain.Session, *domain.Error)
+	Logout(sessionID string) *domain.Error
 }
 
 type UserServiceImpl struct {
@@ -25,13 +25,18 @@ type UserServiceImpl struct {
 }
 
 func (us UserServiceImpl) Register(reqData *serializer.SignupRequest) *domain.Error {
+	user, _ := us.Database.GetUser(reqData.Username)
+	if user.Username != "" {
+		return domain.NewError("user already exists", http.StatusConflict)
+	}
+
 	hashedPass, err := hashPassword(reqData.Password)
 	if err != nil {
 		log.Fatal(err)
 		return domain.NewError(err.Error(), http.StatusBadRequest)
 	}
 
-	user := domain.User{
+	user = domain.User{
 		Id:          uuid.NewV4().String(),
 		Username:    reqData.Username,
 		Password:    hashedPass,
@@ -51,15 +56,15 @@ func (us UserServiceImpl) Register(reqData *serializer.SignupRequest) *domain.Er
 	return nil
 }
 
-func (us UserServiceImpl) Login(reqData *serializer.LoginRequest) (domain.User, *domain.Error) {
+func (us UserServiceImpl) Login(reqData *serializer.LoginRequest) (domain.User, domain.Session, *domain.Error) {
 	user, err := us.Database.GetUser(reqData.Username)
 	if err != nil {
-		return domain.User{}, domain.NewError(fmt.Sprintf("Login failed: %s", err.Error()), err.Code())
+		return domain.User{}, domain.Session{}, domain.NewError(fmt.Sprintf("Login failed: %s", err.Error()), err.Code())
 	}
 
 	passwordMatch := checkPasswordHash(user.Password, reqData.Password)
 	if passwordMatch != true {
-		return domain.User{}, domain.NewError("Invalid password", http.StatusUnauthorized)
+		return domain.User{}, domain.Session{}, domain.NewError("Invalid password", http.StatusUnauthorized)
 	}
 
 	session := domain.Session{
@@ -70,16 +75,25 @@ func (us UserServiceImpl) Login(reqData *serializer.LoginRequest) (domain.User, 
 		Valid:     true,
 	}
 
+	existingSession, err := us.Database.GetValidSession(user.Id)
+	if err != nil && err.Code() != http.StatusNotFound {
+		return domain.User{}, domain.Session{}, domain.NewError(fmt.Sprintf("Login failed: %s", err.Error()), err.Code())
+	}
+
+	if len(existingSession.Id) > 0 {
+		return user, existingSession, &domain.Error{}
+	}
+
 	rowCnt, loginErr := us.Database.NewSession(session)
 	if loginErr != nil {
-		return domain.User{}, domain.NewError(fmt.Sprintf("could not create session: %s", loginErr.Error()), http.StatusInternalServerError)
+		return domain.User{}, domain.Session{}, domain.NewError(fmt.Sprintf("could not create session: %s", loginErr.Error()), loginErr.Code())
 	}
 
 	if rowCnt == 0 {
-		return domain.User{}, domain.NewError(fmt.Sprintf("could not create session: %s", loginErr.Error()), http.StatusInternalServerError)
+		return domain.User{}, domain.Session{}, domain.NewError(fmt.Sprintf("could not create session: %s", loginErr.Error()), http.StatusInternalServerError)
 	}
-	
-	return user, nil
+
+	return user, session, nil
 }
 
 func hashPassword(password string) (string, error) {
@@ -90,4 +104,17 @@ func hashPassword(password string) (string, error) {
 func checkPasswordHash(hash, password string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
+}
+
+func (us UserServiceImpl) Logout(sessionID string) *domain.Error {
+	rowCnt, loginErr := us.Database.InvalidateSession(sessionID)
+	if loginErr != nil {
+		return domain.NewError(fmt.Sprintf("could not invalidate session: %s", loginErr.Error()), loginErr.Code())
+	}
+
+	if rowCnt == 0 {
+		return domain.NewError("session does not exist", http.StatusNotFound)
+	}
+
+	return nil
 }

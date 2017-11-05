@@ -21,7 +21,7 @@ func (h LoginHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	user, loginErr := h.UserService.Login(reqBody)
+	user, session, loginErr := h.UserService.Login(reqBody)
 	if loginErr != nil {
 		http.Error(rw, fmt.Sprintf("user login failed: %s", loginErr.Error()), loginErr.Code())
 		return
@@ -32,6 +32,7 @@ func (h LoginHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		FirstName:   user.FirstName,
 		LastName:    user.LastName,
 		PhoneNumber: user.PhoneNumber,
+		SessionId:   session.Id,
 	}
 
 	responseJson, err := json.Marshal(successResponse)
@@ -39,5 +40,6 @@ func (h LoginHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		http.Error(rw, fmt.Sprintf("could not parse resp json: %s", err.Error()), http.StatusInternalServerError)
 	}
 
+	rw.Header().Set("Content-Type", "application/json")
 	rw.Write(responseJson)
 }

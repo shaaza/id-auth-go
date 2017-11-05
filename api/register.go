@@ -29,7 +29,7 @@ func (h SignupHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	successResponse := serializer.SignupResponse{
-		Status: "SIGNUP_SUCCESSFUL",
+		Status: "SUCCESS",
 	}
 
 	response, err := json.Marshal(successResponse)
@@ -37,5 +37,6 @@ func (h SignupHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		rw.WriteHeader(http.StatusInternalServerError)
 	}
 
+	rw.Header().Set("Content-Type", "application/json")
 	rw.Write(response)
 }

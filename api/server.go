@@ -24,6 +24,12 @@ func NewLoginHandler(userService service.UserService) LoginHandler {
 	}
 }
 
+func NewLogoutHandler(userService service.UserService) LogoutHandler {
+	return LogoutHandler{
+		UserService: userService,
+	}
+}
+
 func NewSignupHandler(userService service.UserService) SignupHandler {
 	return SignupHandler{
 		UserService: userService,
@@ -38,6 +44,7 @@ func Server(db db.DB) *negroni.Negroni {
 	router.HandleFunc("/ping", http.HandlerFunc(healthCheck)).Methods("GET")
 	router.Handle("/users", NewSignupHandler(userService)).Methods("POST")
 	router.Handle("/sessions", NewLoginHandler(userService)).Methods("POST")
+	router.Handle("/sessions/{session_id}", NewLogoutHandler(userService)).Methods("PUT")
 
 	recovery := negroni.NewRecovery()
 	recovery.PrintStack = false
