@@ -8,8 +8,8 @@ import (
 	"github.com/rubenv/sql-migrate"
 )
 
-func Up(dbname string, dialect string, migrationsDir string) {
-	dbinfo := fmt.Sprintf("dbname=%s sslmode=disable", dbname)
+func Up(dbuser string, dbpass string, dbname string, dialect string, migrationsDir string) {
+	dbinfo := fmt.Sprintf("user=%s password=%s  dbname=%s sslmode=disable", dbuser, dbpass, dbname)
 	db, err := sql.Open(dialect, dbinfo)
 	if err != nil {
 		fmt.Printf("sql.Open failed due to: %s", err.Error())
@@ -21,8 +21,8 @@ func Up(dbname string, dialect string, migrationsDir string) {
 	migrate.Exec(db, dialect, migrations, migrate.Up)
 }
 
-func Down(dbname string, dialect string, migrationsDir string) {
-	dbinfo := fmt.Sprintf("dbname=%s sslmode=disable", dbname)
+func Down(dbuser string, dbpass string, dbname string, dialect string, migrationsDir string) {
+	dbinfo := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", dbuser, dbpass, dbname)
 	db, err := sql.Open(dialect, dbinfo)
 	if err != nil {
 		fmt.Printf("sql.Open failed due to: %s", err.Error())

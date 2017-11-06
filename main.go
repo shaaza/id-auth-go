@@ -17,7 +17,7 @@ import (
 
 func main() {
 	config.Load()
-	dbinfo := fmt.Sprintf("dbname=%s sslmode=disable", config.App.Database.Name)
+	dbinfo := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", config.App.Database.User, config.App.Database.Password, config.App.Database.Name)
 	databaseInstance, err := sql.Open(config.App.Database.Dialect, dbinfo)
 	if err != nil {
 		log.Fatal(err)
@@ -45,7 +45,7 @@ func main() {
 			Name:        "db:migrate:up",
 			Description: "Create migrations",
 			Action: func(c *cli.Context) error {
-				migrations.Up(config.App.Database.Name, config.App.Database.Dialect, config.App.Database.MigrationsDir)
+				migrations.Up(config.App.Database.User, config.App.Database.Password, config.App.Database.Name, config.App.Database.Dialect, config.App.Database.MigrationsDir)
 				return nil
 			},
 		},
@@ -53,7 +53,7 @@ func main() {
 			Name:        "db:migrate:down",
 			Description: "Destroy migrations",
 			Action: func(c *cli.Context) error {
-				migrations.Down(config.App.Database.Name, config.App.Database.Dialect, config.App.Database.MigrationsDir)
+				migrations.Down(config.App.Database.User, config.App.Database.Password, config.App.Database.Name, config.App.Database.Dialect, config.App.Database.MigrationsDir)
 				return nil
 			},
 		},

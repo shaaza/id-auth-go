@@ -10,6 +10,8 @@ type AppServer struct {
 
 type Database struct {
 	Name          string
+	User string
+	Password string
 	MigrationsDir string
 	Dialect       string
 }
@@ -35,6 +37,8 @@ func Load() {
 		},
 		Database: Database{
 			Name:          getStringOrPanic("DATABASE_NAME"),
+			User: 		   getStringOrPanic("DATABASE_USER"),
+			Password: 	   getStringOrPanic("DATABASE_PASS"),
 			MigrationsDir: getStringOrPanic("DATABASE_MIGRATIONS_DIR"),
 			Dialect:       getStringOrPanic("DATABASE_DIALECT"),
 		},

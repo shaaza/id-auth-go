@@ -1,4 +1,6 @@
 APP_PORT: '8080'
 DATABASE_MIGRATIONS_DIR: 'migrations'
 DATABASE_NAME: 'micro_authenticator'
+DATABASE_USER: 'postgres_user'
+DATABASE_PASS: 'postgres_password'
 DATABASE_DIALECT: 'postgres'
