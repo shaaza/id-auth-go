@@ -43,7 +43,7 @@ func main() {
 		},
 		{
 			Name:        "db:migrate:up",
-			Description: "Start Http Server",
+			Description: "Create migrations",
 			Action: func(c *cli.Context) error {
 				migrations.Up(config.App.Database.Name, config.App.Database.Dialect, config.App.Database.MigrationsDir)
 				return nil
@@ -51,7 +51,7 @@ func main() {
 		},
 		{
 			Name:        "db:migrate:down",
-			Description: "Start Http Server",
+			Description: "Destroy migrations",
 			Action: func(c *cli.Context) error {
 				migrations.Down(config.App.Database.Name, config.App.Database.Dialect, config.App.Database.MigrationsDir)
 				return nil
